@@ -39,3 +39,48 @@ These terms and conditions are effective as of 2022-02-17
 **Contact Us**
 
 If you have any questions or suggestions about my Terms and Conditions, do not hesitate to contact me at justtouchinfo@gmail.com.
+
+
+
+PowerShell Script
+# Kaynak ve hedef dizinlerin tanımlanması
+$sourceDir = "C:\Users\YAVUZ\Desktop\DENEME"
+$destinationRootDir = "C:\Users\YAVUZ\Desktop\DENEME2"
+
+# Kopyalama işlemini gerçekleştiren fonksiyon
+function Copy-XlsxFiles {
+    # Kaynak dizindeki .xlsx dosyalarının seçilmesi
+    $xlsxFiles = Get-ChildItem -Path $sourceDir -Filter *.xlsx -File
+    
+    # Her dosya için kopyalama işlemi
+    foreach ($file in $xlsxFiles) {
+        # Dosyanın oluşturulma tarihini ve saatini al
+        $fileCreationDateTime = $file.LastWriteTime
+        
+        # Hedef dizin yıl, ay, gün ve saat alt klasörlerinin oluşturulması
+        $yearFolder = "$destinationRootDir\$($fileCreationDateTime.Year)"
+        $monthFolder = "$yearFolder\$($fileCreationDateTime.Month.ToString("00"))"
+        $dayFolder = "$monthFolder\$($fileCreationDateTime.Day.ToString("00"))"
+        $hourFolder = "$dayFolder\$($fileCreationDateTime.Hour.ToString("00"))"
+        
+        # Hedef dizinleri oluştur
+        if (-not (Test-Path -Path $hourFolder)) {
+            New-Item -ItemType Directory -Path $hourFolder -Force | Out-Null
+        }
+        
+        # Dosyanın hedef dizine kopyalanması
+        Copy-Item -Path $file.FullName -Destination $hourFolder -Force
+        Write-Output "Dosya kopyalandı: $($file.Name)"
+    }
+}
+
+# Kopyalama işlemini başlatan döngü
+while ($true) {
+    # Kopyalama işlemini gerçekleştir
+    Copy-XlsxFiles
+    
+    # 15 dakika bekle
+    Start-Sleep -Seconds (15 * 60)
+}
+
+
